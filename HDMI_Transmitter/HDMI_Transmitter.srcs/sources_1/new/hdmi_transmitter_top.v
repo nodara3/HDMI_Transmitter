@@ -21,6 +21,22 @@
 
 
 module hdmi_transmitter_top(
+    //Input Clock
+        input clk,
+    //Main Reset
+        input rstn,
+      
+    //HDMI Outputs
+        output  hdmi_tx0_p,
+        output  hdmi_tx0_n,
+        output  hdmi_tx1_p,
+        output  hdmi_tx1_n,
+        output  hdmi_tx2_p,
+        output  hdmi_tx2_n,
+        output  hdmi_tx_clk_p,
+        output  hdmi_tx_clk_n,
+        
+    //Test IO
         input switch1,
         input switch2,
         output out1,
