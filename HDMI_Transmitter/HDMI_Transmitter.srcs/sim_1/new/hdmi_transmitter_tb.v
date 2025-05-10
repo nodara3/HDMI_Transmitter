@@ -42,11 +42,16 @@ module hdmi_transmitter_tb( );
         rst = 0;
         pixel_data = 8'h00;
 
-        #20 rst = 1;
-        #5 pixel_data = 8'h55; // Example pattern
+        #25 rst = 1;
+         pixel_data = 8'h55; // Example pattern
         #10 pixel_data = 8'hAA; // Another pattern
+        #10 pixel_data = 8'h32;
         #10 pixel_data = 8'hF0;
         #10 pixel_data = 8'h0F;
+                #10 pixel_data = 8'hC4;
+        #10 pixel_data = 8'hB8;
+        #10 pixel_data = 8'h1B;
+        #10 pixel_data = 8'hB5;
         #40 $finish;
     end
 endmodule
