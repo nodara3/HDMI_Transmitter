@@ -56,8 +56,10 @@ if {$::dispatch::connected} {
 }
 
 OPTRACE "synth_1" START { ROLLUP_AUTO }
-set_param synth.incrementalSynthesisCache C:/Users/TechSwap/AppData/Roaming/Xilinx/Vivado/.Xil/Vivado-21756-DESKTOP-7ORFPJ0/incrSyn
+set_param chipscope.maxJobs 3
 set_param checkpoint.writeSynthRtdsInDcp 1
+set_param xicom.use_bs_reader 1
+set_msg_config -id {Common 17-41} -limit 10000000
 set_msg_config -id {Synth 8-256} -limit 10000
 set_msg_config -id {Synth 8-638} -limit 10000
 OPTRACE "Creating in-memory project" START { }
@@ -88,6 +90,8 @@ read_xdc E:/HDMI_Transmitter/HDMI_Transmitter/HDMI_Transmitter.srcs/constrs_1/ne
 set_property used_in_implementation false [get_files E:/HDMI_Transmitter/HDMI_Transmitter/HDMI_Transmitter.srcs/constrs_1/new/constraints1.xdc]
 
 set_param ips.enableIPCacheLiteLoad 1
+
+read_checkpoint -auto_incremental -incremental E:/HDMI_Transmitter/HDMI_Transmitter/HDMI_Transmitter.srcs/utils_1/imports/synth_1/hdmi_transmitter_top.dcp
 close [open __synthesis_is_running__ w]
 
 OPTRACE "synth_design" START { }

@@ -22,22 +22,31 @@
 
 module hdmi_transmitter_tb( );
 
-    reg a, b;
-    wire y0, y1;
-    
+    reg [7:0]pixel_data;
+    reg clk, rst;
+
+
     hdmi_transmitter_top u_dut(
-        .a (a),
-        .b (b),
-        .y0 (y0),
-        .y1 (y1)
+        .clk_100MHz (clk),
+        .rstn (rst),
+        .pixel_data (pixel_data)
         
     );
     
-initial 
-begin
-        a= 0; b = 0;
-    #10 a = 0; b = 1;
-    #10 a = 1; b = 1;
-    #10 $finish;
-end
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+    
+    initial begin
+        rst = 0;
+        pixel_data = 8'h00;
+
+        #20 rst = 1;
+        #5 pixel_data = 8'h55; // Example pattern
+        #10 pixel_data = 8'hAA; // Another pattern
+        #10 pixel_data = 8'hF0;
+        #10 pixel_data = 8'h0F;
+        #40 $finish;
+    end
 endmodule

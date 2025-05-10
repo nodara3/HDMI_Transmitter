@@ -1,7 +1,0 @@
-Running: xsim.dir/hdmi_transmitter_tb_behav/xsimk.exe -simmode gui -wdb hdmi_transmitter_tb_behav.wdb -simrunnum 0 -socket 55789
-Design successfully loaded
-Design Loading Memory Usage: 27672 KB (Peak: 27672 KB)
-Design Loading CPU Usage: 828 ms
-Simulation completed
-Simulation Memory Usage: 28440 KB (Peak: 28440 KB)
-Simulation CPU Usage: 906 ms
