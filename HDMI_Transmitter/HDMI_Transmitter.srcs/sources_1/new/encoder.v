@@ -20,13 +20,23 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module encoder(
+module encoder #(
+
+    parameter TMDS_Channel = 0)
+    ( 
     input clk,
     input resetn,
-    input [7:0]pixel_data
+    input [7:0] pixel_data,
+    input [1:0] control_data,
+    input [3:0] aux_data,
+    input [2:0] h_state,
+    input [2:0] v_state,
+    
+    output reg [9:0] TMDS_Data
     );
     
-    
+    localparam IDLE = 0, hFront = 1, hSync = 2, hBack = 3, Preamble = 4, Video_Guard = 5, Video_Data_Period = 6;
+    localparam vFront = 1, vSync = 2, vBack = 3, vPixel = 4;
     
     // codings for control, video and island periods
     // 1: Control Period
@@ -70,20 +80,87 @@ module encoder(
     endfunction
     
     
+    // video guard coding
+    function [9:0] f_video_guard;
+    input channel;
+    begin
+        case (channel)
+            0: f_video_guard = 10'b1011001100; 
+            1: f_video_guard = 10'b0100110011;
+            2: f_video_guard = 10'b1011001100; 
+            default: f_video_guard = 10'b0000000000; // Optional: default case
+        endcase
+    end
+    endfunction
+    
+    
     integer cnt_prev;
     integer cnt_new;
     integer i;
     reg [8:0] q_m;
     reg [9:0] q_out;
     
+    reg [9:0] q_out_control;
+    
+    reg [9:0] video_guard_data;
+    
     integer clock_cnt;
+    
+    
+    always @(*) begin
+        if (!resetn) begin
+            TMDS_Data = 0;
+        end else begin
+            case (h_state)
+                IDLE:
+                    TMDS_Data = 0;
+                hFront:
+                    TMDS_Data = q_out_control;
+                hSync: 
+                    TMDS_Data = q_out_control;
+                hBack:
+                    TMDS_Data = q_out_control;
+                Preamble: 
+                    TMDS_Data = q_out_control;
+                Video_Guard:
+                    if (v_state == vPixel) begin
+                        TMDS_Data = video_guard_data;
+                    end else begin
+                        TMDS_Data = q_out_control;
+                    end
+                
+                Video_Data_Period:
+                    if (v_state == vPixel) begin
+                        TMDS_Data = q_out;
+                    end else begin
+                        TMDS_Data = q_out_control;
+                    end
+                
+                default: TMDS_Data = 0;
+            endcase    
+        end
+    end
+    
+    
+    
+    // Control data to 10 bit 
+    always @(posedge clk) begin
+        if (!resetn) begin
+            q_out_control <= 0;
+        end else begin
+            q_out_control <= control_coding(control_data[1], control_data[0]);
+            video_guard_data <= f_video_guard(TMDS_Channel);
+        end
+    end   
+    
+    
     // 3: Video Data Period Coding
     always @(posedge clk) begin
         if (!resetn) begin
             cnt_prev <= 0; 
             q_m <= 0;   
             clock_cnt <= 0;
-                        q_out = 0;
+            q_out = 0;
             cnt_new = 0;
         end else begin
             // Step 1:
