@@ -32,7 +32,7 @@ module encoder #(
     input [2:0] h_state,
     input [2:0] v_state,
     
-    output reg [9:0] TMDS_Data
+    output reg [9:0] channel_data
     );
     
     localparam IDLE = 0, hFront = 1, hSync = 2, hBack = 3, Preamble = 4, Video_Guard = 5, Video_Data_Period = 6;
@@ -109,34 +109,34 @@ module encoder #(
     
     always @(*) begin
         if (!resetn) begin
-            TMDS_Data = 0;
+            channel_data = 0;
         end else begin
             case (h_state)
                 IDLE:
-                    TMDS_Data = 0;
+                    channel_data = 0;
                 hFront:
-                    TMDS_Data = q_out_control;
+                    channel_data = q_out_control;
                 hSync: 
-                    TMDS_Data = q_out_control;
+                    channel_data = q_out_control;
                 hBack:
-                    TMDS_Data = q_out_control;
+                    channel_data = q_out_control;
                 Preamble: 
-                    TMDS_Data = q_out_control;
+                    channel_data = q_out_control;
                 Video_Guard:
                     if (v_state == vPixel) begin
-                        TMDS_Data = video_guard_data;
+                        channel_data = video_guard_data;
                     end else begin
-                        TMDS_Data = q_out_control;
+                        channel_data = q_out_control;
                     end
                 
                 Video_Data_Period:
                     if (v_state == vPixel) begin
-                        TMDS_Data = q_out;
+                        channel_data = q_out;
                     end else begin
-                        TMDS_Data = q_out_control;
+                        channel_data = q_out_control;
                     end
                 
-                default: TMDS_Data = 0;
+                default: channel_data = 0;
             endcase    
         end
     end
