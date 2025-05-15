@@ -53,18 +53,19 @@ module hdmi_transmitter_top(
     wire [3:0] aux_data;
     wire [2:0] h_state;
     wire [2:0] v_state;
+    wire m_clk;
     
     encoder #(
         .TMDS_Channel(0) 
         
     ) u_encode_blue (
-        .clk(clk_100MHz),
-        .resetn(rstn),
-        .pixel_data(pixel_data),
-        .control_data(control_data),
-        .aux_data(aux_data),
-        .h_state(h_state),
-        .v_state(v_state)
+        .clk            (m_clk),
+        .resetn         (rstn),
+        .pixel_data     (pixel_data),
+        .control_data   (control_data),
+        .aux_data       (aux_data),
+        .h_state        (h_state),
+        .v_state        (v_state)
     );
     
     
@@ -73,18 +74,20 @@ module hdmi_transmitter_top(
         .TMDS_Channel(0)
     
     ) u_hdmi_interface0 (
-        .clk(clk_100MHz),
-        .resetn(rstn),
-        .control_data(control_data),
-        .aux_data(aux_data),
-        .h_state(h_state),
-        .v_state(v_state)
+        .clk            (m_clk),
+        .resetn         (rstn),
+        .control_data   (control_data),
+        .aux_data       (aux_data),
+        .h_state        (h_state),
+        .v_state        (v_state)
     );
     
     
     //CLOCK
     wire clkfb;
     wire locked;
+    wire SERDES_CLK;
+    
     MMCME2_BASE #(
         .BANDWIDTH("OPTIMIZED"), // Jitter programming (OPTIMIZED, HIGH, LOW)
         .CLKFBOUT_MULT_F(10.647), // Multiply value for all CLKOUT (2.000-64.000).  // get 1.0647 GHz
@@ -92,7 +95,7 @@ module hdmi_transmitter_top(
         .CLKIN1_PERIOD(10.0), // Input clock period in ns to ps resolution (i.e. 33.333 is 30 MHz).
         // CLKOUT0_DIVIDE - CLKOUT6_DIVIDE: Divide amount for each CLKOUT (1-128)
         .CLKOUT1_DIVIDE(10),
-        .CLKOUT2_DIVIDE(1),
+        .CLKOUT2_DIVIDE(2),
         .CLKOUT3_DIVIDE(1),
         .CLKOUT4_DIVIDE(1),
         .CLKOUT5_DIVIDE(1),
@@ -125,7 +128,7 @@ module hdmi_transmitter_top(
         .CLKOUT0B   (), // 1-bit output: Inverted CLKOUT0 
         .CLKOUT1    (m_clk), // 1-bit output: CLKOUT1    // Normal CLock
         .CLKOUT1B   (), // 1-bit output: Inverted CLKOUT1
-        .CLKOUT2    (), // 1-bit output: CLKOUT2
+        .CLKOUT2    (SERDES_CLK), // 1-bit output: CLKOUT2
         .CLKOUT2B   (), // 1-bit output: Inverted CLKOUT2
         .CLKOUT3    (), // 1-bit output: CLKOUT3
         .CLKOUT3B   (), // 1-bit output: Inverted CLKOUT3
@@ -136,12 +139,12 @@ module hdmi_transmitter_top(
         .CLKFBOUT   (clkfb), // 1-bit output: Feedback clock
         .CLKFBOUTB  (), // 1-bit output: Inverted CLKFBOUT
         // Status Ports: 1-bit (each) output: MMCM status ports
-        .LOCKED(locked), // 1-bit output: LOCK
+        .LOCKED     (locked), // 1-bit output: LOCK
         // Clock Inputs: 1-bit (each) input: Clock input
         .CLKIN1     (clk_100MHz), // 1-bit input: Clock
         // Control Ports: 1-bit (each) input: MMCM control ports
         .PWRDWN     (), // 1-bit input: Power-down
-        .RST        (resetn), // 1-bit input: Reset
+        .RST        (~rstn), // 1-bit input: Reset
         // Feedback Clocks: 1-bit (each) input: Clock feedback ports
         .CLKFBIN    (clkfb) // 1-bit input: Feedback clock
         );
