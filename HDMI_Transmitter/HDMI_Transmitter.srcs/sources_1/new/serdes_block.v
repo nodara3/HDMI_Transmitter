@@ -23,7 +23,7 @@
 module serdes_block(
         input [9:0] data,
         input SERDES_CLK,
-        input SERDES_Div_CLK,
+        input SERDES_CLKDIV,
         input resetn,
         
         output data_out
@@ -57,7 +57,7 @@ module serdes_block(
         .TFB        (), // 1-bit output: 3-state control
         .TQ         (), // 1-bit output: 3-state control
         .CLK        (SERDES_CLK), // 1-bit input: High speed clock
-        .CLKDIV     (SERDES_DIV_CLK), // 1-bit input: Divided clock
+        .CLKDIV     (SERDES_CLKDIV), // 1-bit input: Divided clock
         // D1 - D8: 1-bit (each) input: Parallel data inputs (1-bit each)
         .D1         (data[0]),
         .D2         (data[1]),
@@ -105,7 +105,7 @@ module serdes_block(
         .TFB            (), // 1-bit output: 3-state control
         .TQ             (), // 1-bit output: 3-state control
         .CLK            (SERDES_CLK), // 1-bit input: High speed clock
-        .CLKDIV         (SERDES_DIV_CLK), // 1-bit input: Divided clock
+        .CLKDIV         (SERDES_CLKDIV), // 1-bit input: Divided clock
         // D1 - D8: 1-bit (each) input: Parallel data inputs (1-bit each)
         .D1             (1'b0),
         .D2             (1'b0),
