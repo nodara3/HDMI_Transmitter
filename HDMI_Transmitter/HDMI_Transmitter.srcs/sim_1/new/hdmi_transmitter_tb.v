@@ -29,7 +29,8 @@ module hdmi_transmitter_tb( );
     hdmi_transmitter_top u_dut(
         .clk_100MHz (clk),
         .rstn (rst),
-        .pixel_data (pixel_data)
+        .pixel_clk (),
+        .m_clk ()
         
     );
     
@@ -42,7 +43,7 @@ module hdmi_transmitter_tb( );
         rst = 0;
         pixel_data = 8'h00;
 
-        #25 rst = 1;
+        #14 rst = 1;
          pixel_data = 8'h55; // Example pattern
         #10 pixel_data = 8'hAA; // Another pattern
         #10 pixel_data = 8'h32;
@@ -52,6 +53,6 @@ module hdmi_transmitter_tb( );
         #10 pixel_data = 8'hB8;
         #10 pixel_data = 8'h1B;
         #10 pixel_data = 8'hB5;
-        #40 $finish;
+//        #1000 $finish;
     end
 endmodule
