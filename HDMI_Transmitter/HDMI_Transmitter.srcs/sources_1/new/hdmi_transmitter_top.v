@@ -25,9 +25,6 @@ module hdmi_transmitter_top(
         input clk_100MHz,
     //Main Reset
         input rstn,
-        
-        
-        output pixel_clk,
         output m_clk
 //        input [7:0] pixel_data
       
@@ -53,7 +50,10 @@ module hdmi_transmitter_top(
     wire [3:0] aux_data;
     wire [2:0] h_state;
     wire [2:0] v_state;
-    wire m_clk;
+//    wire m_clk;
+    wire TMDS_Channel_Data;
+    wire TMDS_Channel_CLK;
+    wire [9:0] channel_data;
     
     encoder #(
         .TMDS_Channel(0) 
@@ -65,7 +65,9 @@ module hdmi_transmitter_top(
         .control_data   (control_data),
         .aux_data       (aux_data),
         .h_state        (h_state),
-        .v_state        (v_state)
+        .v_state        (v_state),
+        
+        .channel_data   (channel_data)
     );
     
     
@@ -82,11 +84,24 @@ module hdmi_transmitter_top(
         .v_state        (v_state)
     );
     
-    
-    //CLOCK
+   //CLOCK
     wire clkfb;
     wire locked;
     wire SERDES_CLK;
+    wire SERDES_CLKDIV; 
+    
+    
+    //SERDES
+    serdes_block u_serdes_0 (
+        .data           (channel_data),
+        .SERDES_CLK     (SERDES_CLK),
+        .SERDES_CLKDIV (SERDES_CLKDIV),
+        .resetn         (rstn),
+        .data_out       (TMDS_Channel_Data)
+    );
+    
+    //CLOCK
+
     
     MMCME2_BASE #(
         .BANDWIDTH("OPTIMIZED"), // Jitter programming (OPTIMIZED, HIGH, LOW)
@@ -96,7 +111,7 @@ module hdmi_transmitter_top(
         // CLKOUT0_DIVIDE - CLKOUT6_DIVIDE: Divide amount for each CLKOUT (1-128)
         .CLKOUT1_DIVIDE(10),
         .CLKOUT2_DIVIDE(2),
-        .CLKOUT3_DIVIDE(1),
+        .CLKOUT3_DIVIDE(4),
         .CLKOUT4_DIVIDE(1),
         .CLKOUT5_DIVIDE(1),
         .CLKOUT6_DIVIDE(1),
@@ -124,13 +139,13 @@ module hdmi_transmitter_top(
         )
         MMCME2_BASE_inst (
         // Clock Outputs: 1-bit (each) output: User configurable clock outputs
-        .CLKOUT0    (pixel_clk), // 1-bit output: CLKOUT0 // TMDS Pixel Clock
+        .CLKOUT0    (TMDS_Channel_CLK), // 1-bit output: CLKOUT0 // TMDS Pixel Clock
         .CLKOUT0B   (), // 1-bit output: Inverted CLKOUT0 
         .CLKOUT1    (m_clk), // 1-bit output: CLKOUT1    // Normal CLock
         .CLKOUT1B   (), // 1-bit output: Inverted CLKOUT1
         .CLKOUT2    (SERDES_CLK), // 1-bit output: CLKOUT2
         .CLKOUT2B   (), // 1-bit output: Inverted CLKOUT2
-        .CLKOUT3    (), // 1-bit output: CLKOUT3
+        .CLKOUT3    (SERDES_CLKDIV), // 1-bit output: CLKOUT3
         .CLKOUT3B   (), // 1-bit output: Inverted CLKOUT3
         .CLKOUT4    (), // 1-bit output: CLKOUT4
         .CLKOUT5    (), // 1-bit output: CLKOUT5
