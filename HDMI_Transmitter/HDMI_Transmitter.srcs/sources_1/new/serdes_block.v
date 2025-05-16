@@ -67,7 +67,7 @@ module serdes_block(
         .D6         (data[5]),
         .D7         (data[6]),
         .D8         (data[7]),
-        .OCE        (1'b0), // 1-bit input: Output data clock enable
+        .OCE        (1'b1), // 1-bit input: Output data clock enable
         .RST        (~resetn), // 1-bit input: Reset
         // SHIFTIN1 / SHIFTIN2: 1-bit (each) input: Data input expansion (1-bit each)
         .SHIFTIN1   (shiftout1_slv),
@@ -115,7 +115,7 @@ module serdes_block(
         .D6             (1'b0),
         .D7             (1'b0),
         .D8             (1'b0),
-        .OCE            (1'b0), // 1-bit input: Output data clock enable
+        .OCE            (1'b1), // 1-bit input: Output data clock enable
         .RST            (~resetn), // 1-bit input: Reset
         // SHIFTIN1 / SHIFTIN2: 1-bit (each) input: Data input expansion (1-bit each)
         .SHIFTIN1       (1'b0),
