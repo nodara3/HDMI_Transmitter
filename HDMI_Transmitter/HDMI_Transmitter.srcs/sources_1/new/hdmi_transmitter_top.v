@@ -78,6 +78,7 @@ module hdmi_transmitter_top(
     ) u_hdmi_interface0 (
         .clk            (m_clk),
         .resetn         (rstn),
+        .pixel_data     (pixel_data),
         .control_data   (control_data),
         .aux_data       (aux_data),
         .h_state        (h_state),
@@ -95,7 +96,7 @@ module hdmi_transmitter_top(
     serdes_block u_serdes_0 (
         .data           (channel_data),
         .SERDES_CLK     (SERDES_CLK),
-        .SERDES_CLKDIV (SERDES_CLKDIV),
+        .SERDES_CLKDIV  (m_clk),
         .resetn         (rstn),
         .data_out       (TMDS_Channel_Data)
     );
