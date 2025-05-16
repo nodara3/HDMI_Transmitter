@@ -141,6 +141,8 @@ module hdmi_interface#(
 
     // Vertical Sync FSM
     always @ (*) begin
+        pixel_data = 0;
+        aux_data = 0;
        if (!resetn) begin
             v_next_state = IDLE;
             vSync_Pulse = 0;
