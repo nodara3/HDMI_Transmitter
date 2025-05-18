@@ -35,7 +35,7 @@ module encoder #(
     output reg [9:0] channel_data
     );
     
-    localparam IDLE = 0, hFront = 1, hSync = 2, hBack = 3, Preamble = 4, Video_Guard = 5, Video_Data_Period = 6;
+    localparam IDLE = 0, hFront = 1, hSync = 2, hBack = 3, Video_Data_Period = 4;
     localparam vFront = 1, vSync = 2, vBack = 3, vPixel = 4;
     
     // codings for control, video and island periods
@@ -53,31 +53,31 @@ module encoder #(
     end
     endfunction
     
-    // 2: TERC4 Coding for Data Island Period
-    function [9:0] data_island_coding;
-    input D3, D2, D1, D0;
-    begin
-        case ({D3, D2, D1, D0})
-            4'b0000: data_island_coding = 10'b1010011100; 
-            4'b0001: data_island_coding = 10'b1001100011;
-            4'b0010: data_island_coding = 10'b1011100100; 
-            4'b0011: data_island_coding = 10'b1011100010; 
-            4'b0100: data_island_coding = 10'b0101110001; 
-            4'b0101: data_island_coding = 10'b0100011110; 
-            4'b0110: data_island_coding = 10'b0110001110; 
-            4'b0111: data_island_coding = 10'b0100111100; 
-            4'b1000: data_island_coding = 10'b1011001100; 
-            4'b1001: data_island_coding = 10'b0100111001; 
-            4'b1010: data_island_coding = 10'b0110011100; 
-            4'b1011: data_island_coding = 10'b1011000110; 
-            4'b1100: data_island_coding = 10'b1010001110; 
-            4'b1101: data_island_coding = 10'b1001110001; 
-            4'b1110: data_island_coding = 10'b0101100011; 
-            4'b1111: data_island_coding = 10'b1011000011;
-            default: data_island_coding = 10'b0000000000; // Optional: default case
-        endcase
-    end
-    endfunction
+//    // 2: TERC4 Coding for Data Island Period
+//    function [9:0] data_island_coding;
+//    input D3, D2, D1, D0;
+//    begin
+//        case ({D3, D2, D1, D0})
+//            4'b0000: data_island_coding = 10'b1010011100; 
+//            4'b0001: data_island_coding = 10'b1001100011;
+//            4'b0010: data_island_coding = 10'b1011100100; 
+//            4'b0011: data_island_coding = 10'b1011100010; 
+//            4'b0100: data_island_coding = 10'b0101110001; 
+//            4'b0101: data_island_coding = 10'b0100011110; 
+//            4'b0110: data_island_coding = 10'b0110001110; 
+//            4'b0111: data_island_coding = 10'b0100111100; 
+//            4'b1000: data_island_coding = 10'b1011001100; 
+//            4'b1001: data_island_coding = 10'b0100111001; 
+//            4'b1010: data_island_coding = 10'b0110011100; 
+//            4'b1011: data_island_coding = 10'b1011000110; 
+//            4'b1100: data_island_coding = 10'b1010001110; 
+//            4'b1101: data_island_coding = 10'b1001110001; 
+//            4'b1110: data_island_coding = 10'b0101100011; 
+//            4'b1111: data_island_coding = 10'b1011000011;
+//            default: data_island_coding = 10'b0000000000; // Optional: default case
+//        endcase
+//    end
+//    endfunction
     
     
     // video guard coding
@@ -113,22 +113,13 @@ module encoder #(
         end else begin
             case (h_state)
                 IDLE:
-                    channel_data = 0;
+                    channel_data = 10'b0;
                 hFront:
                     channel_data = q_out_control;
                 hSync: 
                     channel_data = q_out_control;
                 hBack:
                     channel_data = q_out_control;
-                Preamble: 
-                    channel_data = q_out_control;
-                Video_Guard:
-                    if (v_state == vPixel) begin
-                        channel_data = video_guard_data;
-                    end else begin
-                        channel_data = q_out_control;
-                    end
-                
                 Video_Data_Period:
                     if (v_state == vPixel) begin
                         channel_data = q_out;
@@ -136,7 +127,7 @@ module encoder #(
                         channel_data = q_out_control;
                     end
                 
-                default: channel_data = 0;
+                default: channel_data = 10'b0;
             endcase    
         end
     end
