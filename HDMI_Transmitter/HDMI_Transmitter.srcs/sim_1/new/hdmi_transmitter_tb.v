@@ -28,8 +28,7 @@ module hdmi_transmitter_tb( );
 
     hdmi_transmitter_top u_dut(
         .clk_100MHz (clk),
-        .rstn (rst),
-        .m_clk ()
+        .rstn (rst)
         
     );
     
