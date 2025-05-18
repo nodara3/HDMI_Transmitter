@@ -25,18 +25,17 @@ module hdmi_transmitter_top(
         input clk_100MHz,
     //Main Reset
         input rstn,
-        output m_clk
 //        input [7:0] pixel_data
       
 //    //HDMI Outputs
-//        output  wire  hdmi_tx0_p,
-//        output  wire hdmi_tx0_n,
-//        output  wire hdmi_tx1_p,
-//        output  wire hdmi_tx1_n,
-//        output  wire hdmi_tx2_p,
-//        output  wire hdmi_tx2_n,
-//        output  wire hdmi_tx_clk_p,
-//        output  wire hdmi_tx_clk_n,
+        output  wire  hdmi_tx0_p,
+        output  wire hdmi_tx0_n,
+        output  wire hdmi_tx1_p,
+        output  wire hdmi_tx1_n,
+        output  wire hdmi_tx2_p,
+        output  wire hdmi_tx2_n,
+        output  wire hdmi_tx_clk_p,
+        output  wire hdmi_tx_clk_n
         
 //    //Test IO
 //        input switch1,
@@ -55,6 +54,47 @@ module hdmi_transmitter_top(
     wire TMDS_Channel_CLK;
     wire [9:0] channel_data;
     
+    // Output Buffers
+    OBUFDS #(
+      .IOSTANDARD("TMDS_33"), // Specify the output I/O standard
+      .SLEW("FAST")           // Specify the output slew rate
+    ) u_tmds_channel0_buf (
+      .O    (hdmi_tx0_p),     // Diff_p output (connect directly to top-level port)
+      .OB   (hdmi_tx0_n),   // Diff_n output (connect directly to top-level port)
+      .I    (I)      // Buffer input
+    );
+    
+    OBUFDS #(
+      .IOSTANDARD("TMDS_33"), // Specify the output I/O standard
+      .SLEW("FAST")           // Specify the output slew rate
+    ) u_tmds_channel1_buf (
+      .O    (hdmi_tx1_p),     // Diff_p output (connect directly to top-level port)
+      .OB   (hdmi_tx1_n),   // Diff_n output (connect directly to top-level port)
+      .I    (I)      // Buffer input
+    );
+    
+
+    OBUFDS #(
+      .IOSTANDARD("TMDS_33"), // Specify the output I/O standard
+      .SLEW("FAST")           // Specify the output slew rate
+    ) u_tmds_channel2_buf (
+      .O    (hdmi_tx2_p),     // Diff_p output (connect directly to top-level port)
+      .OB   (hdmi_tx2_n),   // Diff_n output (connect directly to top-level port)
+      .I    (I)      // Buffer input
+    );  
+    
+    // Clock buffer
+    OBUFDS #(
+      .IOSTANDARD("TMDS_33"), // Specify the output I/O standard
+      .SLEW("FAST")           // Specify the output slew rate
+    ) u_tmds_clock_buf (
+      .O    (hdmi_tx_clk_p),     // Diff_p output (connect directly to top-level port)
+      .OB   (hdmi_tx_clk_n),   // Diff_n output (connect directly to top-level port)
+      .I    (TMDS_Channel_CLK)      // Buffer input
+    );
+    
+    
+    // Encoders
     encoder #(
         .TMDS_Channel(0) 
         
