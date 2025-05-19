@@ -80,18 +80,18 @@ module encoder #(
 //    endfunction
     
     
-    // video guard coding
-    function [9:0] f_video_guard;
-    input channel;
-    begin
-        case (channel)
-            0: f_video_guard = 10'b1011001100; 
-            1: f_video_guard = 10'b0100110011;
-            2: f_video_guard = 10'b1011001100; 
-            default: f_video_guard = 10'b0000000000; // Optional: default case
-        endcase
-    end
-    endfunction
+//    // video guard coding
+//    function [9:0] f_video_guard;
+//    input channel;
+//    begin
+//        case (channel)
+//            0: f_video_guard = 10'b1011001100; 
+//            1: f_video_guard = 10'b0100110011;
+//            2: f_video_guard = 10'b1011001100; 
+//            default: f_video_guard = 10'b0000000000; // Optional: default case
+//        endcase
+//    end
+//    endfunction
     
     
     integer cnt_prev;
@@ -140,7 +140,7 @@ module encoder #(
             q_out_control <= 0;
         end else begin
             q_out_control <= control_coding(control_data[1], control_data[0]);
-            video_guard_data <= f_video_guard(TMDS_Channel);
+//            video_guard_data <= f_video_guard(TMDS_Channel);
         end
     end   
     
