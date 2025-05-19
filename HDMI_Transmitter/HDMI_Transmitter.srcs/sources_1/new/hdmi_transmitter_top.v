@@ -28,7 +28,7 @@ module hdmi_transmitter_top(
 //        input [7:0] pixel_data
       
 //    //HDMI Outputs
-        output  wire  hdmi_tx0_p,
+        output  wire hdmi_tx0_p,
         output  wire hdmi_tx0_n,
         output  wire hdmi_tx1_p,
         output  wire hdmi_tx1_n,
@@ -44,15 +44,21 @@ module hdmi_transmitter_top(
 //        output out2
     );
     
-    wire [1:0] control_data;
-    wire [7:0] pixel_data;
-    wire [3:0] aux_data;
+    
+   
+   
+
     wire [2:0] h_state;
     wire [2:0] v_state;
 //    wire m_clk;
-    wire TMDS_Channel_Data;
+    wire TMDS_Channel0_Data;
+    wire TMDS_Channel1_Data;
+    wire TMDS_Channel2_Data;
+    
     wire TMDS_Channel_CLK;
-    wire [9:0] channel_data;
+    wire [9:0] channel_data0;
+    wire [9:0] channel_data1;
+    wire [9:0] channel_data2;
     
     // Output Buffers
     OBUFDS #(
@@ -61,7 +67,7 @@ module hdmi_transmitter_top(
     ) u_tmds_channel0_buf (
       .O    (hdmi_tx0_p),     // Diff_p output (connect directly to top-level port)
       .OB   (hdmi_tx0_n),   // Diff_n output (connect directly to top-level port)
-      .I    (I)      // Buffer input
+      .I    (TMDS_Channel0_Data)      // Buffer input
     );
     
     OBUFDS #(
@@ -70,7 +76,7 @@ module hdmi_transmitter_top(
     ) u_tmds_channel1_buf (
       .O    (hdmi_tx1_p),     // Diff_p output (connect directly to top-level port)
       .OB   (hdmi_tx1_n),   // Diff_n output (connect directly to top-level port)
-      .I    (I)      // Buffer input
+      .I    (TMDS_Channel1_Data)      // Buffer input
     );
     
 
@@ -80,7 +86,7 @@ module hdmi_transmitter_top(
     ) u_tmds_channel2_buf (
       .O    (hdmi_tx2_p),     // Diff_p output (connect directly to top-level port)
       .OB   (hdmi_tx2_n),   // Diff_n output (connect directly to top-level port)
-      .I    (I)      // Buffer input
+      .I    (TMDS_Channel2_Data)      // Buffer input
     );  
     
     // Clock buffer
@@ -94,23 +100,63 @@ module hdmi_transmitter_top(
     );
     
     
-    // Encoders
+    // Encoder 0
     encoder #(
         .TMDS_Channel(0) 
         
     ) u_encode_blue (
         .clk            (m_clk),
         .resetn         (rstn),
-        .pixel_data     (pixel_data),
-        .control_data   (control_data),
-        .aux_data       (aux_data),
+        .pixel_data     (pixel_data0),
+        .control_data   (control_data0),
+//        .aux_data       (aux_data),
         .h_state        (h_state),
         .v_state        (v_state),
         
-        .channel_data   (channel_data)
+        .channel_data   (channel_data0)
     );
     
-
+    // Encoder 1
+    encoder #(
+        .TMDS_Channel(1) 
+        
+    ) u_encode_green (
+        .clk            (m_clk),
+        .resetn         (rstn),
+        .pixel_data     (pixel_data1),
+        .control_data   (control_data1),
+//        .aux_data       (aux_data),
+        .h_state        (h_state),
+        .v_state        (v_state),
+        
+        .channel_data   (channel_data1)
+    );
+    
+    // Encoder 2
+    encoder #(
+        .TMDS_Channel(2) 
+        
+    ) u_encode_red (
+        .clk            (m_clk),
+        .resetn         (rstn),
+        .pixel_data     (pixel_data2),
+        .control_data   (control_data2),
+//        .aux_data       (aux_data),
+        .h_state        (h_state),
+        .v_state        (v_state),
+        
+        .channel_data   (channel_data2)
+    );
+    
+    
+    //VGA Interface
+    wire [1:0] control_data0;
+    wire [1:0] control_data1;
+    wire [1:0] control_data2;
+    wire [7:0] pixel_data0;
+    wire [7:0] pixel_data1;
+    wire [7:0] pixel_data2;
+    
     hdmi_interface #(
 
         .TMDS_Channel(0),
@@ -119,15 +165,23 @@ module hdmi_transmitter_top(
         .Vertical_Sync_Pulse(3),  //(active-high)
         .Vertical_Back_Porch(28)
     
-    ) u_hdmi_interface0 (
+    ) u_vga_interface (
+    
         .clk            (m_clk),
         .resetn         (rstn),
-        .pixel_data     (pixel_data),
-        .control_data   (control_data),
-        .aux_data       (aux_data),
+        
+        .pixel_data0    (pixel_data0),
+        .pixel_data1    (pixel_data1),
+        .pixel_data2    (pixel_data2),
+        .control_data0  (control_data0),
+        .control_data1  (control_data1),
+        .control_data2  (control_data2),
+//        .aux_data       (aux_data),
         .h_state        (h_state),
         .v_state        (v_state)
     );
+    
+    
     
    //CLOCK
     wire clkfb;
@@ -138,17 +192,33 @@ module hdmi_transmitter_top(
     
     //SERDES
     serdes_block u_serdes_0 (
-        .data           (channel_data),
+        .data           (channel_data0),
         .SERDES_CLK     (SERDES_CLK),
         .SERDES_CLKDIV  (m_clk),
         .resetn         (rstn),
-        .data_out       (TMDS_Channel_Data)
+        .data_out       (TMDS_Channel0_Data)
+    );
+
+    serdes_block u_serdes_1 (
+        .data           (channel_data1),
+        .SERDES_CLK     (SERDES_CLK),
+        .SERDES_CLKDIV  (m_clk),
+        .resetn         (rstn),
+        .data_out       (TMDS_Channel1_Data)
+    );
+    
+    serdes_block u_serdes_2 (
+        .data           (channel_data2),
+        .SERDES_CLK     (SERDES_CLK),
+        .SERDES_CLKDIV  (m_clk),
+        .resetn         (rstn),
+        .data_out       (TMDS_Channel2_Data)
     );
     
     //CLOCK
     MMCME2_BASE #(
         .BANDWIDTH("OPTIMIZED"), // Jitter programming (OPTIMIZED, HIGH, LOW)
-        .CLKFBOUT_MULT_F(10.647), // Multiply value for all CLKOUT (2.000-64.000).  // get 1.0647 GHz
+        .CLKFBOUT_MULT_F(10.750), // Multiply value for all CLKOUT (2.000-64.000).  // get 1.0647 GHz
         .CLKFBOUT_PHASE(0.0), // Phase offset in degrees of CLKFB (-360.000-360.000).
         .CLKIN1_PERIOD(10.0), // Input clock period in ns to ps resolution (i.e. 33.333 is 30 MHz).
         // CLKOUT0_DIVIDE - CLKOUT6_DIVIDE: Divide amount for each CLKOUT (1-128)
