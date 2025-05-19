@@ -37,8 +37,13 @@ module hdmi_interface#(
     input clk,
     input resetn,
     
-    output reg [1:0] control_data,
-    output reg [7:0] pixel_data,
+    output reg [1:0] control_data0,
+    output reg [1:0] control_data1,
+    output reg [1:0] control_data2,
+    
+    output reg [7:0] pixel_data0,
+    output reg [7:0] pixel_data1,
+    output reg [7:0] pixel_data2,
     output reg [3:0] aux_data,
     output [2:0] h_state,
     output [2:0] v_state
@@ -84,6 +89,7 @@ module hdmi_interface#(
 //            end
             
             
+            
             if (hCounter == Horizontal_Full_Period - 1) begin
                 hCounter <= 0;
                 if (vCounter == Vertical_Full_Period - 1) begin
@@ -107,6 +113,7 @@ module hdmi_interface#(
         if (! resetn) begin
             vSync_Pulse <= 0;
             hSync_Pulse <= 0;
+            pixel_data0 <= 0;
         end else begin
         
             case(v_cur_state)  
@@ -123,41 +130,46 @@ module hdmi_interface#(
                 hFront  : hSync_Pulse <= 0;    
                 hSync   : hSync_Pulse <= 1;
                 hBack   : hSync_Pulse <= 0;
-                Video_Data_Period : hSync_Pulse <= 0;
+                Video_Data_Period : begin
+                    hSync_Pulse <= 0;
+                    if (pixel_data0 == 255) begin
+                        pixel_data0 <= 0;
+                    end else begin
+                        pixel_data0 <= pixel_data0 + 1;
+                    end 
+                end
+                
                 default : hSync_Pulse <= 0;        
             endcase
             
         end
     end
     
-    
+    // Control data generate
     always @ (*) begin
         
         if (! resetn) begin
-            control_data = 1'b00;      
+            control_data0 = 1'b00;  
+            control_data1 = 1'b00;                   
+            control_data2 = 1'b00;     
         end else begin
         
-            case(TMDS_Channel)
-            
-                0: begin
-                    control_data[0] = vSync_Pulse;
-                    control_data[1] = hSync_Pulse;
-                end
+            control_data0[0] = vSync_Pulse;
+            control_data0[1] = hSync_Pulse;
+                
+            control_data1 = 1'b00;
                     
-                1 : control_data = 1'b00;
-                
-                2 : control_data = 1'b00;  
-                
-                default: control_data = 1'b00;
-                
-            endcase
+            control_data2 = 1'b00;  
+                    
         end
     end  
     
 
     // Vertical Sync FSM
     always @ (*) begin
-        pixel_data = 0;
+        
+        pixel_data1 = 0;
+        pixel_data2 = 0;
         aux_data = 0;
         
        if (!resetn) begin
