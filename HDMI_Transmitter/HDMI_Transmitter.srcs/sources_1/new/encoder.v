@@ -111,20 +111,20 @@ module encoder #(
         if (!resetn) begin
             channel_data = 0;
         end else begin
-            case (h_state)
+            case (h_state_ppl2)
                 IDLE:
                     channel_data = 10'b0;
                 hFront:
-                    channel_data = q_out_control;
+                    channel_data = q_out_control_ppl2;
                 hSync: 
-                    channel_data = q_out_control;
+                    channel_data = q_out_control_ppl2;
                 hBack:
-                    channel_data = q_out_control;
+                    channel_data = q_out_control_ppl2;
                 Video_Data_Period:
                     if (v_state == vPixel) begin
                         channel_data = q_out;
                     end else begin
-                        channel_data = q_out_control;
+                        channel_data = q_out_control_ppl2;
                     end
                 
                 default: channel_data = 10'b0;
@@ -133,13 +133,33 @@ module encoder #(
     end
     
     
+    reg [2:0] h_state_ppl1, h_state_ppl2;
+    reg [9:0] q_out_control_ppl1, q_out_control_ppl2;
+    
+    // Pipeline 
+    always @(posedge clk) begin
+        if (!resetn) begin
+            h_state_ppl1 <= 0;
+            h_state_ppl2 <= 0;
+
+        end else begin
+
+            h_state_ppl1 <= h_state;
+            h_state_ppl2 <= h_state_ppl1;
+            
+//            q_out_control_ppl1 <= q_out_control;
+//            q_out_control_ppl2 <= q_out_control_ppl1;
+        end
+    end   
     
     // Control data to 10 bit 
     always @(posedge clk) begin
         if (!resetn) begin
             q_out_control <= 0;
+            q_out_control_ppl2 <= 0;
         end else begin
-            q_out_control <= control_coding(control_data[1], control_data[0]);
+            q_out_control_ppl2 <= control_coding(control_data[1], control_data[0]);
+//             <= q_out_control;
 //            video_guard_data <= f_video_guard(TMDS_Channel);
         end
     end   
