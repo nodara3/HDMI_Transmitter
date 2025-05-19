@@ -110,10 +110,14 @@ module hdmi_transmitter_top(
         .channel_data   (channel_data)
     );
     
-    
+
     hdmi_interface #(
 
-        .TMDS_Channel(0)
+        .TMDS_Channel(0),
+        .Vertical_Visible_Lines (100),
+        .Vertical_Front_Porch(1),
+        .Vertical_Sync_Pulse(3),  //(active-high)
+        .Vertical_Back_Porch(28)
     
     ) u_hdmi_interface0 (
         .clk            (m_clk),
@@ -142,8 +146,6 @@ module hdmi_transmitter_top(
     );
     
     //CLOCK
-
-    
     MMCME2_BASE #(
         .BANDWIDTH("OPTIMIZED"), // Jitter programming (OPTIMIZED, HIGH, LOW)
         .CLKFBOUT_MULT_F(10.647), // Multiply value for all CLKOUT (2.000-64.000).  // get 1.0647 GHz
