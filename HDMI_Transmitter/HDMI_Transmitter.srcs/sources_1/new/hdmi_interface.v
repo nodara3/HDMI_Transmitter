@@ -73,7 +73,7 @@ module hdmi_interface#(
             h_cur_state <= IDLE;
             v_cur_state <= IDLE;
             hCounter <= 0;
-            vCounter <= 0;
+            vCounter <= Vertical_Full_Period - 1;
 
         end else begin
         
@@ -84,22 +84,15 @@ module hdmi_interface#(
 //            end
             
             
-            if (hCounter < Horizontal_Full_Period - 2) begin
-                hCounter <= hCounter + 1;
-                
-            end else if (hCounter < Horizontal_Full_Period - 1)begin
-            
-                hCounter <= hCounter + 1;
-                if (vCounter < Vertical_Full_Period - 1) begin
-                    vCounter <= vCounter + 1;
-                end else begin
+            if (hCounter == Horizontal_Full_Period - 1) begin
+                hCounter <= 0;
+                if (vCounter == Vertical_Full_Period - 1) begin
                     vCounter <= 0;
+                end else begin
+                    vCounter <= vCounter + 1;                    
                 end
              end else begin   
-                hCounter <= 0;
-                
-                //increment vCounter before it runs whole vertical 
-                
+                hCounter <= hCounter + 1;               
             end
             
             // State Update 
@@ -184,7 +177,7 @@ module hdmi_interface#(
                 end
                      
                 vFront : begin                    
-                    if (vCounter == Vertical_Front_Porch) begin                        
+                    if (vCounter == Vertical_Front_Porch - 1) begin                        
                         v_next_state = vSync;
                     end else begin
                         v_next_state = vFront;
@@ -192,7 +185,7 @@ module hdmi_interface#(
                 end
     
                 vSync : begin                    
-                    if (vCounter == Vertical_Front_Porch + Vertical_Sync_Pulse) begin
+                    if (vCounter == Vertical_Front_Porch + Vertical_Sync_Pulse - 1) begin
                         v_next_state = vBack;
                     end else begin
                         v_next_state = vSync;
@@ -200,7 +193,7 @@ module hdmi_interface#(
                 end
                 
                 vBack  : begin                    
-                    if (vCounter == Vertical_Blanking) begin
+                    if (vCounter == Vertical_Blanking - 1) begin
                         v_next_state = vPixel;
                     end else begin
                         v_next_state = vBack;                        
@@ -209,7 +202,7 @@ module hdmi_interface#(
                 end
                 
                 vPixel : begin                 
-                    if (vCounter == Vertical_Full_Period) begin                        
+                    if (vCounter == Vertical_Full_Period - 1) begin                        
                         v_next_state = vFront;
                     end else begin
                         v_next_state = vPixel;
