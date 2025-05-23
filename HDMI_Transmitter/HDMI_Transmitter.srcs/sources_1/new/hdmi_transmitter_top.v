@@ -24,7 +24,7 @@ module hdmi_transmitter_top(
     //Input Clock
         input clk_100MHz,
     //Main Reset
-        input rstn,
+        input rst,
 //        input [7:0] pixel_data
       
 //    //HDMI Outputs
@@ -45,8 +45,9 @@ module hdmi_transmitter_top(
     );
     
     
+    wire resetn;
    
-   
+   assign resetn = ~(~locked | rst);
 
     wire [2:0] h_state;
     wire [2:0] v_state;
@@ -106,7 +107,7 @@ module hdmi_transmitter_top(
         
     ) u_encode_blue (
         .clk            (m_clk),
-        .resetn         (rstn),
+        .resetn         (resetn),
         .pixel_data     (pixel_data0),
         .control_data   (control_data0),
 //        .aux_data       (aux_data),
@@ -122,7 +123,7 @@ module hdmi_transmitter_top(
         
     ) u_encode_green (
         .clk            (m_clk),
-        .resetn         (rstn),
+        .resetn         (resetn),
         .pixel_data     (pixel_data1),
         .control_data   (control_data1),
 //        .aux_data       (aux_data),
@@ -138,7 +139,7 @@ module hdmi_transmitter_top(
         
     ) u_encode_red (
         .clk            (m_clk),
-        .resetn         (rstn),
+        .resetn         (resetn),
         .pixel_data     (pixel_data2),
         .control_data   (control_data2),
 //        .aux_data       (aux_data),
@@ -159,16 +160,16 @@ module hdmi_transmitter_top(
     
     hdmi_interface #(
 
-        .TMDS_Channel(0),
-        .Vertical_Visible_Lines (100),
-        .Vertical_Front_Porch(1),
-        .Vertical_Sync_Pulse(3),  //(active-high)
-        .Vertical_Back_Porch(28)
+        .TMDS_Channel(0)
+//        .Vertical_Visible_Lines (100),
+//        .Vertical_Front_Porch(1),
+//        .Vertical_Sync_Pulse(3),  //(active-high)
+//        .Vertical_Back_Porch(28)
     
     ) u_vga_interface (
     
         .clk            (m_clk),
-        .resetn         (rstn),
+        .resetn         (resetn),
         
         .pixel_data0    (pixel_data0),
         .pixel_data1    (pixel_data1),
@@ -195,7 +196,7 @@ module hdmi_transmitter_top(
         .data           (channel_data0),
         .SERDES_CLK     (SERDES_CLK),
         .SERDES_CLKDIV  (m_clk),
-        .resetn         (rstn),
+        .resetn         (resetn),
         .data_out       (TMDS_Channel0_Data)
     );
 
@@ -203,7 +204,7 @@ module hdmi_transmitter_top(
         .data           (channel_data1),
         .SERDES_CLK     (SERDES_CLK),
         .SERDES_CLKDIV  (m_clk),
-        .resetn         (rstn),
+        .resetn         (resetn),
         .data_out       (TMDS_Channel1_Data)
     );
     
@@ -211,7 +212,7 @@ module hdmi_transmitter_top(
         .data           (channel_data2),
         .SERDES_CLK     (SERDES_CLK),
         .SERDES_CLKDIV  (m_clk),
-        .resetn         (rstn),
+        .resetn         (resetn),
         .data_out       (TMDS_Channel2_Data)
     );
     
@@ -272,7 +273,7 @@ module hdmi_transmitter_top(
         .CLKIN1     (clk_100MHz), // 1-bit input: Clock
         // Control Ports: 1-bit (each) input: MMCM control ports
         .PWRDWN     (), // 1-bit input: Power-down
-        .RST        (~rstn), // 1-bit input: Reset
+        .RST        (0), // 1-bit input: Reset
         // Feedback Clocks: 1-bit (each) input: Clock feedback ports
         .CLKFBIN    (clkfb) // 1-bit input: Feedback clock
         );
