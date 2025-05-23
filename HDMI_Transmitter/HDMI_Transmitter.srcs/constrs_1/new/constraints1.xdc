@@ -13,7 +13,7 @@ create_clock -name sysclk -period 10 -waveform {0 5} [get_ports {clk_100MHz}]
 #set_property IOSTANDARD LVCMOS33 [get_ports out2]
 #set_property PACKAGE_PIN E17 [get_ports out2]
 
-set_property -dict { PACKAGE_PIN A10   IOSTANDARD LVCMOS33  } [get_ports { rstn }];
+set_property -dict { PACKAGE_PIN L23   IOSTANDARD LVCMOS33  } [get_ports { rst }];
 
 set_property -dict { PACKAGE_PIN A23   IOSTANDARD TMDS_33  } [get_ports { hdmi_tx0_p }];
 set_property -dict { PACKAGE_PIN A24   IOSTANDARD TMDS_33  } [get_ports { hdmi_tx0_n }];
