@@ -44,7 +44,7 @@ module serdes_block(
         .SRVAL_TQ       (1'b0), // TQ output value when SR is used (1'b0,1'b1)
         .TBYTE_CTL      ("FALSE"), // Enable tristate byte operation (FALSE, TRUE)
         .TBYTE_SRC      ("FALSE"), // Tristate byte source (FALSE, TRUE)
-        .TRISTATE_WIDTH (4) // 3-state converter width (1,4)
+        .TRISTATE_WIDTH (1) // 3-state converter width (1,4)
         
     )OSERDESE2_inst_master (
     
@@ -92,7 +92,7 @@ module serdes_block(
         .SRVAL_TQ       (1'b0), // TQ output value when SR is used (1'b0,1'b1)
         .TBYTE_CTL      ("FALSE"), // Enable tristate byte operation (FALSE, TRUE)
         .TBYTE_SRC      ("FALSE"), // Tristate byte source (FALSE, TRUE)
-        .TRISTATE_WIDTH (4) // 3-state converter width (1,4)
+        .TRISTATE_WIDTH (1) // 3-state converter width (1,4)
         
     )OSERDESE2_inst_slave (
     
